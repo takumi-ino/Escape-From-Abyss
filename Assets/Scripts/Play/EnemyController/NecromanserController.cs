@@ -4,7 +4,7 @@ public class NecromanserController : EnemyBaseController
 {
     [SerializeField] AudioClip scytheAttackSE;
 
-    public NecromanserController() : base("ネクロマンサー", 9, 5f, 8f, 7f, 5f) { }
+    public NecromanserController() : base("ネクロマンサー", 9, 5f, 8f, 7f) { }
 
     private void Start()
     {

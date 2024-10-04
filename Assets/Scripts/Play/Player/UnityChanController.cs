@@ -379,7 +379,7 @@ namespace UnityChan
             {
                 CharacterVoiceManager.instance.Play(CharacterVoiceManager.Select.Dead);
 
-                ItemSoundManager.instance.Play(ItemSoundManager.Select.ImpactSeWhenPlayerDead);
+                SoundEffectManager.instance.Play(SoundEffectManager.Select.ImpactSeWhenPlayerDead);
 
                 DiePlayer();
 
@@ -495,12 +495,14 @@ namespace UnityChan
 
                     healItem.HeaPlayerlHp(ref playerHp, maxHp);
 
+                    SoundEffectManager.instance.Play(SoundEffectManager.Select.HealPlayer);
+
                     HpSliderUpdate();
                 }
             }
             else if (other.gameObject.tag == "BlackBox")  // ブラックボックスを取得したら
             {
-                ItemSoundManager.instance.Play(ItemSoundManager.Select.GetBlackBox);
+                SoundEffectManager.instance.Play(SoundEffectManager.Select.GetBlackBox);
 
                 Destroy(other.gameObject);
                 BlackBoxManager.AddHavingCount();
@@ -535,7 +537,7 @@ namespace UnityChan
 
         public void PlayFootStepSE()
         {
-            if (!isGrounded) return;
+            //if (!isGrounded) return;
 
             footStepSource.clip = footStepClip;
             footStepSource.Play();
@@ -543,7 +545,7 @@ namespace UnityChan
 
         public void PlayBreathSE()
         {
-            if (!isGrounded) return;
+            //if (!isGrounded) return;
 
             CharacterVoiceManager.instance.Play(CharacterVoiceManager.Select.Breath);
         }

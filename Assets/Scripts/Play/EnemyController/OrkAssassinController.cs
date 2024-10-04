@@ -5,7 +5,7 @@ public class OrkAssassinController : EnemyBaseController
 
     [SerializeField] AudioClip stabAttackSE;
 
-    public OrkAssassinController() : base("オークアサシン", 8, 5f, 7f, 8f, 5f) { }
+    public OrkAssassinController() : base("オークアサシン", 8, 5f, 7f, 8f) { }
 
     private void Start()
     {

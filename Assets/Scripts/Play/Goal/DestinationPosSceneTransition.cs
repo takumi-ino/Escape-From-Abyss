@@ -26,26 +26,27 @@ public class DestinationPosSceneTransition : MonoBehaviour
 
     private void Start()
     {
+        // new Vector3で y軸を低く設定しすぎると、遷移と同時にゲームオーバーになってしまうので注意
+
+
         // ステージ１ デバッグ用スポーン位置　Vector3(25,8.36,38)
         // ステージ１ 定位置                  Vector3((24f, 8.36f, 37.75f)
-        transitionPoint_stage1 = new Vector3(25, 8.36f, 38);
+        transitionPoint_stage1 = new Vector3(25f, 8.36f, 38f);
 
-        // ステージ２ デバッグ用スポーン位置　Vector3(101, 4.5f, 92f)
-        // ステージ２ 定位置                  Vector3(83, 7.7f, -34)
-        transitionPoint_stage2 = new Vector3(101, 4.5f, 92f);
+        // ステージ２ デバッグ用スポーン位置　Vector3(101f, 4.5f, 92f)
+        // ステージ２ 定位置                  Vector3(83f, 7.7f, -34f)
+        transitionPoint_stage2 = new Vector3(83f, 7.7f, -34f);
 
-        // ステージ３ デバッグ用スポーン位置　Vector3(-374, 10f, 11f)
+        // ステージ３ デバッグ用スポーン位置　Vector3(-374f, 10f, 11f)
         // ステージ３ 望ましい定位置（梯子で登れないため不可）Vector3(Vector3(70.1800003,2.6099999,26.75)
-        // ステージ３ サブスポーン位置(デフォルト）　Vector3(55.0730019, 7.8130002, 9.125)
+        // ステージ３ サブスポーン位置(デフォルト）　Vector3(55f, 8f, 8.5f)
 
-        transitionPoint_stage3 = new Vector3(-374f, 10f, 11f);
+        transitionPoint_stage3 = new Vector3(56f, 11f, 6f);
     }
 
     public void SceneTransition(string nextSceneName)
     {
         if (!BlackBoxManager.HasAllRequiredBox()) return;
-
-        // new Vector3で y軸を低く設定しすぎると、遷移と同時にゲームオーバーになってしまうので注意
 
         if (nextSceneName == "SecondStage")
         {

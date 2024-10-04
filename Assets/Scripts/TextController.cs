@@ -37,7 +37,7 @@ public class TextController : MonoBehaviour
             if (currentSentenceNum < sentences.Length && Input.GetMouseButton(0) || Input.GetKeyDown(KeyCode.Return))
             {
                 SetNextSentence();
-                ItemSoundManager.instance.Play(ItemSoundManager.Select.FlipPage);
+                SoundEffectManager.instance.Play(SoundEffectManager.Select.FlipPage);
             }
             // ÅŒã‚Ì•¶‚É“ž’B
             else if (currentSentenceNum >= sentences.Length)

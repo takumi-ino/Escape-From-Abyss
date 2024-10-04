@@ -4,7 +4,7 @@ public class SkeletonController : EnemyBaseController
 {
     [SerializeField] AudioClip slashAttackSE;
 
-    public SkeletonController() : base("スケルトン", 4, 3f, 5f, 5f, 4f) { }
+    public SkeletonController() : base("スケルトン", 4, 3f, 5f, 5f) { }
 
     private void Start()
     {

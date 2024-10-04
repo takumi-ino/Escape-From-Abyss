@@ -19,9 +19,10 @@ public class EnemyBaseController : MonoBehaviour
     public float WalkSpeed { get; protected set; } // 歩行速度
     public float RunSpeed { get; protected set; }  // 走行速度
     public float RandomWanderRadius { get; protected set; } // Wander状態のときの移動範囲
-    public float CanSeePlayerRadius { get; protected set; } // Wander状態のときの移動範囲
+    public float CanSeePlayerRadius { get; protected set; } // プレイヤー視認可能範囲
 
-
+    private float idleTimer = 0.0f;
+    private const float idleInterval = 4.0f;
     protected void Awake()
     {
         myTransform = transform;
@@ -36,7 +37,7 @@ public class EnemyBaseController : MonoBehaviour
         float walk_s = 4f,          //歩行速度
         float run_s = 6f,           //走行速度、
         float rnd_wanderRad = 5f,   //巡回可能範囲
-        float canSee_playerRad = 3f)//プレイヤー認知可能範囲
+        float canSee_playerRad = 6f)//プレイヤー認知可能範囲
     {
         Name = name;
         AttackPoint = at;
@@ -86,9 +87,17 @@ public class EnemyBaseController : MonoBehaviour
 
     protected bool CanSeePlayer()
     {
+        // 距離
         if (DistanceToPlayer() <= CanSeePlayerRadius)
         {
-            return true;
+            Vector3 direction = targetTransform.position - transform.position;
+            float angle = Vector3.Angle(transform.forward, direction);
+
+            // 視野角に入っているか
+            if (angle <= 30f)
+            {
+                return true;
+            }
         }
 
         return false;
@@ -143,22 +152,31 @@ public class EnemyBaseController : MonoBehaviour
 
                 agent.enabled = false;
 
-                if (!ReachToPlayer())
+                // 追跡開始
+                if (CanSeePlayer())
                 {
-                    // プレイヤーを発見していれば追いかける
-                    if (CanSeePlayer())
-                        current_enemy_state = STATE.CHASE;
-
-                    // プレイヤーを発見していなければ確率で巡回を始める
-                    else 
-                        current_enemy_state = STATE.WALK;
+                    SoundEffectManager.instance.Play(SoundEffectManager.Select.NoticePlayer);
+                    current_enemy_state = STATE.CHASE;
                 }
-                // プレイヤーに追いついた場合
+                
                 else
                 {
-                    current_enemy_state = STATE.ATTACK;
-                    break;
+                    // 毎フレーム更新されてしまうため、タイマーでタイミングを制御
+
+                    idleTimer += Time.deltaTime;
+
+                    if(idleTimer > idleInterval)
+                    {
+                        idleTimer = 0;
+
+                        // 一定確率で巡回開始
+                        if (Random.Range(0, 100) > 70)
+                        {
+                            current_enemy_state = STATE.WALK;
+                        }
+                    }                   
                 }
+
                 break;
 
             // 彷徨っているとき
@@ -171,24 +189,39 @@ public class EnemyBaseController : MonoBehaviour
                 {
                     agent.speed = WalkSpeed;
 
-                    SetAnimationState(STATE.WALK);
-
                     float x = transform.position.x + Random.Range(-RandomWanderRadius, RandomWanderRadius);    // 横方向にランダム移動
                     float z = transform.position.z + Random.Range(-RandomWanderRadius, RandomWanderRadius);    // 奥方向にランダム移動
+                    
                     Vector3 newPos = new Vector3(x, transform.position.y, z);
-                    //agent.SetDestination(newPos);
+
+                    Ray ray = new Ray(newPos , Vector3.down);
+                    RaycastHit hit;
+
+                    // ランダム巡回地点に床があれば移動する
+                    if (Physics.Raycast(ray, out hit, 1.0f))
+                    {
+                        agent.SetDestination(newPos);
+
+                        SetAnimationState(STATE.WALK);
+                    }
+
+                    break;
                 }
 
                 if (CanSeePlayer())
                 {
+                    SoundEffectManager.instance.Play(SoundEffectManager.Select.NoticePlayer);
                     current_enemy_state = STATE.CHASE;
-                    break;
                 }
-                if (Random.Range(0, 5000) < 5)
+                else if (agent.remainingDistance <= agent.stoppingDistance && !agent.pathPending)
                 {
-                    //agent.ResetPath();
                     current_enemy_state = STATE.IDLE;
-                    break;
+                }
+
+                // 地面に接地していなければ
+                if (IsObstacleAhead() || !IsGroundAhead())
+                {
+                    SetAnimationState(STATE.IDLE); // 歩くアニメーションを停止
                 }
 
                 break;
@@ -198,24 +231,24 @@ public class EnemyBaseController : MonoBehaviour
 
                 agent.enabled = true;
 
-                if (!GameState.gameOver)
-                {
-                    SetAnimationState(STATE.CHASE);
+                SetAnimationState(STATE.CHASE);
 
-                    agent.SetDestination(targetTransform.position);
-                    agent.speed = RunSpeed;
+                agent.SetDestination(targetTransform.position);
+                agent.speed = RunSpeed;
 
-                }
+                transform.LookAt(new Vector3(targetTransform.position.x, transform.position.y, targetTransform.position.z));
+
                 // プレイヤーを見失ったら彷徨い始める   ゲームオーバーの場合は永遠に彷徨い始める
-                else if (GameState.gameOver || !CanSeePlayer())
+                if (GameState.gameOver || !CanSeePlayer())
                 {
-
                     current_enemy_state = STATE.IDLE;
-                    return;
                 }
 
                 if (ReachToPlayer())
+                {
                     current_enemy_state = STATE.ATTACK;
+                }
+
                 break;
 
             // プレイヤーを攻撃している時
@@ -245,5 +278,38 @@ public class EnemyBaseController : MonoBehaviour
                     current_enemy_state = STATE.CHASE;      // 離れたらまた追いかけ始める
                 break;
         }
+    }
+
+
+    private bool IsObstacleAhead()
+    {
+        RaycastHit hit;
+        Vector3 forward = transform.TransformDirection(Vector3.forward);
+
+        if (Physics.Raycast(transform.position, forward, out hit, 1.0f))
+        {
+            if (hit.collider.CompareTag("Wall"))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private bool IsGroundAhead()
+    {
+        RaycastHit hit;
+        Vector3 down = transform.TransformDirection(Vector3.down);
+        Vector3 forwardOffset = transform.position + Vector3.forward * 0.1f;
+
+        if (Physics.Raycast(forwardOffset, down, out hit, 1.0f))
+        {
+            if (hit.collider.CompareTag("Ground"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

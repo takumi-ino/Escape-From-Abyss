@@ -5,7 +5,7 @@ public class ScavengerController : EnemyBaseController
 {
     [SerializeField] AudioClip slashAttackSE;
 
-    public ScavengerController() : base("スカベンジャー", 4, 4f, 8f, 5f, 5f) { }
+    public ScavengerController() : base("スカベンジャー", 4, 4f, 8f, 5f) { }
 
     private void Start()
     {

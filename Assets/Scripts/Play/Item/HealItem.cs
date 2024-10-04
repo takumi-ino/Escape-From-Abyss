@@ -10,7 +10,6 @@ public class HealItem : MonoBehaviour
 
         hp += Mathf.Max(maxHp - hp, healPoint);
 
-        ItemSoundManager.instance.Play(ItemSoundManager.Select.HealPlayer);
         Destroy(gameObject);
     }
 }

@@ -5,7 +5,7 @@ public class CyberMonsterController : EnemyBaseController
 {
     [SerializeField] AudioClip swordAttackSE;
     [SerializeField] AudioClip gunAttackSE;
-    public CyberMonsterController() : base("サイバー", 4, 4f, 7f, 5f, 5f) { }
+    public CyberMonsterController() : base("サイバー", 4, 4f, 7f, 5f) { }
 
     private void Start()
     {

@@ -4,7 +4,7 @@ public class ScarecrowController : EnemyBaseController
 {
     [SerializeField] AudioClip slapAttackSE;
 
-    public ScarecrowController() : base("スケアクロウ", 6, 5f, 8f, 8f, 5f) { }
+    public ScarecrowController() : base("スケアクロウ", 6, 5f, 8f, 8f) { }
 
     private void Start()
     {
